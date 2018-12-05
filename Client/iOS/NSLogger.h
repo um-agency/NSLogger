@@ -47,7 +47,6 @@
 
 
 #ifdef DEBUG
-    #define NSLog(...)                      LogMessageF(__FILE__, __LINE__, __FUNCTION__, @"NSLog", 0, __VA_ARGS__)
     #define LoggerError(level, ...)         LogMessageF(__FILE__, __LINE__, __FUNCTION__, @"Error", level, __VA_ARGS__)
     #define LoggerApp(level, ...)           LogMessageF(__FILE__, __LINE__, __FUNCTION__, @"App", level, __VA_ARGS__)
     #define LoggerView(level, ...)          LogMessageF(__FILE__, __LINE__, __FUNCTION__, @"View", level, __VA_ARGS__)
@@ -62,7 +61,6 @@
     #define LoggerAd(level, ...)            LogMessageF(__FILE__, __LINE__, __FUNCTION__, @"Ad and Stat", level, __VA_ARGS__)
 
 #else
-    #define NSLog(...)                      LogMessageCompat(__VA_ARGS__)
     #define LoggerError(...)                while(0) {}
     #define LoggerApp(level, ...)           while(0) {}
     #define LoggerView(...)                 while(0) {}
