@@ -191,12 +191,16 @@ static NSArray *sXcodeFileExtensions = nil;
 }
 
 - (NSString *)windowTitleForDocumentDisplayName:(NSString *)displayName
-{
+{   
 	if ([[self document] fileURL] != nil)
 		return displayName;
+    if (!attachedConnection) {
+        return @"NSLogger (Disconnected)";
+    }
+    
 	if (attachedConnection.connected)
 		return [attachedConnection clientAppDescription];
-	return [NSString stringWithFormat:NSLocalizedString(@"%@ (disconnected)", @""),
+    return [NSString stringWithFormat:NSLocalizedString(@"NSLogger (%@ disconnected)", @""),
 			[attachedConnection clientDescription]];
 }
 
