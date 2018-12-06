@@ -50,6 +50,8 @@ NSString * const kPrefClientApplicationSettings = @"clientApplicationSettings";
 
 NSString * const kPref_ApplicationFilterSet = @"appFilterSet";
 
+static LoggerDocument *loggerDoc = nil;
+
 @implementation LoggerAppDelegate
 @synthesize transports, filterSets, filtersSortDescriptors, statusController;
 @synthesize serverCerts, serverCertsLoadAttempted;
@@ -103,18 +105,18 @@ NSString * const kPref_ApplicationFilterSet = @"appFilterSet";
 		
 		// resurrect filters before the app nib loads
 		NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-		NSData *filterSetsData = [defaults objectForKey:@"filterSets"];
-		if (filterSetsData != nil)
-		{
-			filterSets = [[NSKeyedUnarchiver unarchiveObjectWithData:filterSetsData] retain];
-			if (![filterSets isKindOfClass:[NSMutableArray class]])
-			{
-				[filterSets release];
-				filterSets = nil;
-			}
-		}
-		if (filterSets == nil)
-			filterSets = [[NSMutableArray alloc] init];
+//        NSData *filterSetsData = [defaults objectForKey:@"filterSets"];
+//        if (filterSetsData != nil)
+//        {
+//            filterSets = [[NSKeyedUnarchiver unarchiveObjectWithData:filterSetsData] retain];
+//            if (![filterSets isKindOfClass:[NSMutableArray class]])
+//            {
+//                [filterSets release];
+//                filterSets = nil;
+//            }
+//        }
+//        if (filterSets == nil)
+        filterSets = [[NSMutableArray alloc] init];
 		if (![filterSets count])
 		{
 			NSMutableArray *filters = nil;
@@ -190,7 +192,7 @@ NSString * const kPref_ApplicationFilterSet = @"appFilterSet";
 - (void)prefsChangeNotification:(NSNotification *)note
 {
 	[self performSelector:@selector(startStopTransports) withObject:nil afterDelay:0];
-    [LoggerMessageCell loadAdvancedColors];
+//    [LoggerMessageCell loadAdvancedColors];
 }
 
 - (void)startStopTransports
@@ -275,6 +277,17 @@ NSString * const kPref_ApplicationFilterSet = @"appFilterSet";
 
 	// start transports
 	[self performSelector:@selector(startStopTransports) withObject:nil afterDelay:0];
+    
+    
+    NSDocumentController *docController = [NSDocumentController sharedDocumentController];
+
+    // Instantiate a new window for this connection
+    LoggerDocument *doc = [[LoggerDocument alloc] initWithConnection:nil];
+    loggerDoc = doc;
+    [docController addDocument:doc];
+    [doc makeWindowControllers];
+    [doc showWindows];
+    [doc release];
 }
 
 - (BOOL)applicationShouldOpenUntitledFile:(NSApplication *)sender
@@ -315,13 +328,14 @@ NSString * const kPref_ApplicationFilterSet = @"appFilterSet";
 			}
 		}
 	}
-
+    
+    [loggerDoc addConnection:aConnection];
 	// Instantiate a new window for this connection
-	LoggerDocument *doc = [[LoggerDocument alloc] initWithConnection:aConnection];
-	[docController addDocument:doc];
-	[doc makeWindowControllers];
-	[doc showWindows];
-	[doc release];
+//    LoggerDocument *doc = [[LoggerDocument alloc] initWithConnection:aConnection];
+//    [docController addDocument:doc];
+//    [doc makeWindowControllers];
+//    [doc showWindows];
+//    [doc release];
 }
 
 - (NSMutableArray *)defaultFilters
@@ -331,52 +345,81 @@ NSString * const kPref_ApplicationFilterSet = @"appFilterSet";
 	[filters addObject:[NSDictionary dictionaryWithObjectsAndKeys:
 						[NSNumber numberWithInteger:1], @"uid",
 						NSLocalizedString(@" All logs", @""), @"title",
-						[NSPredicate predicateWithValue:YES], @"predicate",
+						 [NSCompoundPredicate andPredicateWithSubpredicates:[NSArray arrayWithObject:[NSPredicate predicateWithFormat:@"(tag != \"stderr\")"]]], @"predicate",
 						nil]];
 
-	[filters addObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:
-						[NSNumber numberWithInteger:2], @"uid",
-						NSLocalizedString(@"Type: text", @""), @"title",
-						[NSCompoundPredicate andPredicateWithSubpredicates:[NSArray arrayWithObject:[NSPredicate predicateWithFormat:@"(messageType == \"text\")"]]], @"predicate",
-						nil]];
-
-	[filters addObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:
-						[NSNumber numberWithInteger:3], @"uid",
-						NSLocalizedString(@"Type: image", @""), @"title",
-						[NSCompoundPredicate andPredicateWithSubpredicates:[NSArray arrayWithObject:[NSPredicate predicateWithFormat:@"(messageType == \"img\")"]]], @"predicate",
-						nil]];
-
-	[filters addObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:
-						[NSNumber numberWithInteger:4], @"uid",
-						NSLocalizedString(@"Type: data", @""), @"title",
-						[NSCompoundPredicate andPredicateWithSubpredicates:[NSArray arrayWithObject:[NSPredicate predicateWithFormat:@"(messageType == \"data\")"]]], @"predicate",
-						nil]];
+    [filters addObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:
+                        [NSNumber numberWithInteger:2], @"uid",
+                        NSLocalizedString(@" StdErr", @""), @"title",
+                        [NSCompoundPredicate andPredicateWithSubpredicates:[NSArray arrayWithObject:[NSPredicate predicateWithFormat:@"(tag == \"stderr\")"]]], @"predicate",
+                        nil]];
+//
+//    [filters addObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:
+//                        [NSNumber numberWithInteger:3], @"uid",
+//                        NSLocalizedString(@"Type: image", @""), @"title",
+//                        [NSCompoundPredicate andPredicateWithSubpredicates:[NSArray arrayWithObject:[NSPredicate predicateWithFormat:@"(messageType == \"img\")"]]], @"predicate",
+//                        nil]];
+//
+//    [filters addObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:
+//                        [NSNumber numberWithInteger:4], @"uid",
+//                        NSLocalizedString(@"Type: data", @""), @"title",
+//                        [NSCompoundPredicate andPredicateWithSubpredicates:[NSArray arrayWithObject:[NSPredicate predicateWithFormat:@"(messageType == \"data\")"]]], @"predicate",
+//                        nil]];
 
     [filters addObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:
                         [NSNumber numberWithInteger:5], @"uid",
                         NSLocalizedString(@" Errors", @""), @"title",
-                        [NSCompoundPredicate andPredicateWithSubpredicates:[NSArray arrayWithObject:[NSPredicate predicateWithFormat:@"(level == 0)"]]], @"predicate",
+                        [NSCompoundPredicate andPredicateWithSubpredicates:[NSArray arrayWithObject:[NSPredicate predicateWithFormat:@"(level == 7)"]]], @"predicate",
                         nil]];
-
-    [filters addObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:
-                        [NSNumber numberWithInteger:6], @"uid",
-                        NSLocalizedString(@" Errors and warnings", @""), @"title",
-                        [NSCompoundPredicate andPredicateWithSubpredicates:[NSArray arrayWithObject:[NSPredicate predicateWithFormat:@"(level <= 1)"]]], @"predicate",
-                        nil]];
-
+//
     [filters addObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:
                         [NSNumber numberWithInteger:7], @"uid",
-                        NSLocalizedString(@" All but noise", @""), @"title",
-                        [NSCompoundPredicate andPredicateWithSubpredicates:[NSArray arrayWithObject:[NSPredicate predicateWithFormat:@"(level < 6)"]]], @"predicate",
+                        NSLocalizedString(@"Warnings", @""), @"title",
+                        [NSCompoundPredicate andPredicateWithSubpredicates:[NSArray arrayWithObject:[NSPredicate predicateWithFormat:@"(level == 8)"]]], @"predicate",
                         nil]];
+    
+    [filters addObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:
+                        [NSNumber numberWithInteger:7], @"uid",
+                        NSLocalizedString(@"Debug", @""), @"title",
+                        [NSCompoundPredicate andPredicateWithSubpredicates:[NSArray arrayWithObject:[NSPredicate predicateWithFormat:@"(level == 9)"]]], @"predicate",
+                        nil]];
+    
+    [filters addObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:
+                        [NSNumber numberWithInteger:9], @"uid",
+                        NSLocalizedString(@"Info", @""), @"title",
+                        [NSCompoundPredicate andPredicateWithSubpredicates:[NSArray arrayWithObject:[NSPredicate predicateWithFormat:@"(level == 10)"]]], @"predicate",
+                        nil]];
+    
+    [filters addObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:
+                        [NSNumber numberWithInteger:10], @"uid",
+                        NSLocalizedString(@"Verbose", @""), @"title",
+                        [NSCompoundPredicate andPredicateWithSubpredicates:[NSArray arrayWithObject:[NSPredicate predicateWithFormat:@"(level == 11)"]]], @"predicate",
+                        nil]];
+    
+    [filters addObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:
+                        [NSNumber numberWithInteger:11], @"uid",
+                        NSLocalizedString(@"Request", @""), @"title",
+                        [NSCompoundPredicate andPredicateWithSubpredicates:[NSArray arrayWithObject:[NSPredicate predicateWithFormat:@"(level == 12)"]]], @"predicate",
+                        nil]];
+    [filters addObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:
+                        [NSNumber numberWithInteger:12], @"uid",
+                        NSLocalizedString(@"Response", @""), @"title",
+                        [NSCompoundPredicate andPredicateWithSubpredicates:[NSArray arrayWithObject:[NSPredicate predicateWithFormat:@"(level == 13)"]]], @"predicate",
+                        nil]];
+//
+//    [filters addObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:
+//                        [NSNumber numberWithInteger:7], @"uid",
+//                        NSLocalizedString(@" All but noise", @""), @"title",
+//                        [NSCompoundPredicate andPredicateWithSubpredicates:[NSArray arrayWithObject:[NSPredicate predicateWithFormat:@"(level < 6)"]]], @"predicate",
+//                        nil]];
 
-    for (NSString *domain in @[@"App", @"View", @"Controller", @"Service", @"Network", @"Model"]) {
-        [filters addObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:
-                            [NSNumber numberWithInteger:8], @"uid",
-                            [NSString stringWithFormat:NSLocalizedString(@"Domain: %@", @""), domain], @"title",
-                            [NSCompoundPredicate andPredicateWithSubpredicates:[NSArray arrayWithObject:[NSPredicate predicateWithFormat:[NSString stringWithFormat:@"(tag == \"%@\")", domain]]]], @"predicate",
-                            nil]];
-    }
+//    for (NSString *domain in @[@"App", @"View", @"Controller", @"Service", @"Network", @"Model"]) {
+//        [filters addObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:
+//                            [NSNumber numberWithInteger:8], @"uid",
+//                            [NSString stringWithFormat:NSLocalizedString(@"Domain: %@", @""), domain], @"title",
+//                            [NSCompoundPredicate andPredicateWithSubpredicates:[NSArray arrayWithObject:[NSPredicate predicateWithFormat:[NSString stringWithFormat:@"(tag == \"%@\")", domain]]]], @"predicate",
+//                            nil]];
+//    }
 
 	return filters;
 }

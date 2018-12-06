@@ -278,18 +278,34 @@ NSString * const kMessageColumnWidthsChangedNotification = @"MessageColumnWidths
 + (NSArray *)defaultAdvancedColorsPrefs
 {
     NSDictionary *errorSpec = [@{@"comment": @"Errors",
-                                      @"regexp": @"level=0",
+                                      @"regexp": @"level=7",
                                       @"colors": @"bold red"} autorelease];
 
     NSDictionary *warningSpec = [@{@"comment": @"Warnings",
-                                   @"regexp": @"level=1",
+                                   @"regexp": @"level=8",
                                    @"colors": @"#eebb00"} autorelease];
 
-    NSDictionary *noiseSpec = [@{@"comment": @"Noise",
-                                   @"regexp": @"level=6",
-                                   @"colors": @"#aaaaaa"} autorelease];
+    NSDictionary *debugSpec = [@{@"comment": @"Debug",
+                                   @"regexp": @"level=9",
+                                   @"colors": @"#000000"} autorelease];
+    
+    NSDictionary *infoSpec = [@{@"comment": @"Info",
+                                 @"regexp": @"level=10",
+                                 @"colors": @"#4522FA"} autorelease];
+    
+    NSDictionary *verboseSpec = [@{@"comment": @"Verbose",
+                                 @"regexp": @"level=11",
+                                 @"colors": @"#aaaaaa"} autorelease];
+    
+    NSDictionary *requestSpec = [@{@"comment": @"Request",
+                                 @"regexp": @"level=12",
+                                   @"colors": @"#5E5E5E"} autorelease];
+    
+    NSDictionary *responseSpec = [@{@"comment": @"Response",
+                                 @"regexp": @"level=13",
+                                 @"colors": @"#5E5E5E"} autorelease];
 
-    return [[[NSArray alloc] initWithObjects:errorSpec, warningSpec, noiseSpec, nil] autorelease];
+    return [[[NSArray alloc] initWithObjects:errorSpec, warningSpec, debugSpec, infoSpec, verboseSpec, requestSpec, responseSpec, nil] autorelease];
 }
 
 + (NSArray *)loadAdvancedColorsPrefs

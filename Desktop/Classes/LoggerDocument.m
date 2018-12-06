@@ -62,7 +62,9 @@
 	{
 		attachedLogs = [[NSMutableArray alloc] init];
 		aConnection.delegate = self;
-		[attachedLogs addObject:aConnection];
+        if (aConnection) {
+            [attachedLogs addObject:aConnection];
+        }
 		currentConnection = aConnection;
 	}
 	return self;

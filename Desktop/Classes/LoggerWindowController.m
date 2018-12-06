@@ -155,10 +155,15 @@ static NSArray *sXcodeFileExtensions = nil;
 	[filterSetsTable setIntercellSpacing:NSMakeSize(0,0)];
 
 	[filterTable registerForDraggedTypes:[NSArray arrayWithObject:kNSLoggerFilterPasteboardType]];
-	[filterTable setVerticalMotionCanBeginDrag:YES];
+    [filterTable setVerticalMotionCanBeginDrag:YES];
 	[filterTable setTarget:self];
 	[filterTable setIntercellSpacing:NSMakeSize(0,0)];
 	[filterTable setDoubleAction:@selector(startEditingFilter:)];
+//    filterTable.headerView.layer.borderColor = [NSColor redColor].CGColor;
+//    filterTable.headerView.layer.borderWidth = 1.f;
+//    filterTable.layer.borderColor = [NSColor redColor].CGColor;
+//    filterTable.layer.borderWidth = 1.f;
+//    filterTable.frame = NSMakeRect(0.f, 0.f, 150, 200);
 
 	[filterSetsListController addObserver:self forKeyPath:@"arrangedObjects" options:0 context:NULL];
 	[filterSetsListController addObserver:self forKeyPath:@"selectedObjects" options:0 context:NULL];
@@ -182,6 +187,7 @@ static NSArray *sXcodeFileExtensions = nil;
 											   object:nil];
     
     [[NSUserDefaults standardUserDefaults] addObserver:self forKeyPath:kMaxTableRowHeight options:0 context:NULL];
+    
 }
 
 - (NSString *)windowTitleForDocumentDisplayName:(NSString *)displayName
