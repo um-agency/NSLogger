@@ -1,3 +1,7 @@
+
+# Актуальная версия для BOOM
+[NSLogger.zip](https://github.com/um-agency/NSLogger/files/2652971/NSLogger.zip)
+
 <p align="center">
   <img src="https://github.com/fpillet/NSLogger/raw/master/Desktop/Resources/Icon/1290083967_Console.png" title="NSLogger" width=128>
 </p>
